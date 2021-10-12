@@ -12,6 +12,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.RequiresApi
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -29,15 +30,13 @@ import android.os.Looper
 import timber.log.Timber
 import java.util.*
 
+private const val ENABLE_BLUETOOTH_REQUEST_CODE = 1
+private const val LOCATION_PERMISSION_REQUEST_CODE = 2
+private const val GATT_MAX_MTU_SIZE = 517
+val batteryServiceUuid = UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")
 
 class BluetoothActivity : AppCompatActivity() {
 
-    companion object {
-        private const val ENABLE_BLUETOOTH_REQUEST_CODE = 1
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 2
-        private const val GATT_MAX_MTU_SIZE = 517
-    }
-    val batteryServiceUuid = UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bluetooth)
@@ -210,7 +209,7 @@ class BluetoothActivity : AppCompatActivity() {
             }
             with(result.device) {
                 Log.w("ScanResultAdapter", "Connecting to $address")
-                connectGatt(null, false, gattCallback)
+                connectGatt(this@BluetoothActivity, false, gattCallback)
             }
         }
     }
@@ -220,17 +219,22 @@ class BluetoothActivity : AppCompatActivity() {
             val deviceAddress = gatt.device.address
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                gatt.requestMtu(GATT_MAX_MTU_SIZE)
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     Log.w("BluetoothGattCallback", "Successfully connected to $deviceAddress")
-                    bluetoothGatt = gatt
                     val  BluetoothGatt = gatt
                     Handler(Looper.getMainLooper()).post {
-                        bluetoothGatt?.discoverServices()
+                        gatt?.discoverServices()
                     }
-                } else if (...) { /* Omitted for brevity */ }
-            } else { /* Omitted for brevity */ }
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    Log.w("BluetoothGattCallback", "Successfully disconnected from $deviceAddress")
+                    gatt.close()
+                }
+            } else {
+                Log.w("BluetoothGattCallback", "Error $status encountered for $deviceAddress! Disconnecting...")
+                gatt.close()
+            }
         }
-        gatt?
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             with(gatt) {
@@ -239,15 +243,17 @@ class BluetoothActivity : AppCompatActivity() {
                 // Consider connection setup as complete here
             }
         }
-    }
 
-    fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
-        Timber.w("ATT MTU changed to $mtu, success: ${status == BluetoothGatt.GATT_SUCCESS}")
+
+        override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
+            Log.w("MTU","ATT MTU changed to $mtu, success: ${status == BluetoothGatt.GATT_SUCCESS}")
+        }
+
     }
 
     private fun BluetoothGatt.printGattTable() {
         if (services.isEmpty()) {
-            Timber.i("No service and characteristic available, call discoverServices() first?")
+            Log.i("PrintGattTable","No service and characteristic available, call discoverServices() first?")
             return
         }
         services.forEach { service ->
@@ -272,63 +278,4 @@ class BluetoothActivity : AppCompatActivity() {
     fun BluetoothGattCharacteristic.containsProperty(property: Int): Boolean {
         return properties and property != 0
     }
-
-    private fun readBatteryLevel() {
-        val batteryServiceUuid = UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")
-        val batteryLevelCharUuid = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb")
-        val batteryLevelChar = gatt
-            .getService(batteryServiceUuid)?.getCharacteristic(batteryLevelChar)
-        if (batteryLevelChar?.isReadable() == true) {
-            gatt.readCharacteristic(batteryLevelChar)
-        }
-    }
-
-    fun onCharacteristicRead(
-        gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic,
-        status: Int
-    ) {
-        with(characteristic) {
-            when (status) {
-                BluetoothGatt.GATT_SUCCESS -> {
-                    Log.i("BluetoothGattCallback", "Read characteristic $uuid:\n${value.toHexString()}")
-                }
-                BluetoothGatt.GATT_READ_NOT_PERMITTED -> {
-                    Log.e("BluetoothGattCallback", "Read not permitted for $uuid!")
-                }
-                else -> {
-                    Log.e("BluetoothGattCallback", "Characteristic read failed for $uuid, error: $status")
-                }
-            }
-            val readBytes: ByteArray // ... obtained from onCharacteristicRead()
-            val fourBytes: ByteArray // ... obtained from onCharacteristicRead()
-
-            val batteryLevel = readBytes.first().toInt() // 0x64 -> 100 (percent)
-            val numericalValue = (fourBytes[3].toInt() and 0xFF shl 24) +
-                    (fourBytes[2].toInt() and 0xFF shl 16) +
-                    (fourBytes[1].toInt() and 0xFF shl 8) +
-                    (fourBytes[0].toInt() and 0xFF)
-        }
-    }
-
-    // ... somewhere outside BluetoothGattCallback
-    fun ByteArray.toHexString(): String =
-        joinToString(separator = " ", prefix = "0x") { String.format("%02X", it) }
-
-}
-
-fun writeCharacteristic(characteristic: BluetoothGattCharacteristic, payload: ByteArray) {
-    val writeType = when {
-        characteristic.isWritable() -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-        characteristic.isWritableWithoutResponse() -> {
-            BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-        }
-        else -> error("Characteristic ${characteristic.uuid} cannot be written to")
-    }
-
-    bluetoothGatt?.let { gatt ->
-        characteristic.writeType = writeType
-        characteristic.value = payload
-        gatt.writeCharacteristic(characteristic)
-    } ?: error("Not connected to a BLE device!")
 }

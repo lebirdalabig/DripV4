@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/Von Arimbay/AndroidStudioProjects/DripV4/app/src/main/res/layout/activity_bluetooth.xml" value="0.13858695652173914" />
+        <entry key="..\:/Users/LIPIEMCO EMPLOYEE/AndroidStudioProjects/DripV4/app/src/main/res/layout/activity_bluetooth.xml" value="0.15760869565217392" />
+        <entry key="..\:/Users/LIPIEMCO EMPLOYEE/AndroidStudioProjects/DripV4/app/src/main/res/layout/activity_scan_result_adapter.xml" value="0.15760869565217392" />
+        <entry key="..\:/Users/Von Arimbay/AndroidStudioProjects/DripV4/app/src/main/res/layout/activity_bluetooth.xml" value="0.22" />
         <entry key="..\:/Users/Von Arimbay/AndroidStudioProjects/DripV4/app/src/main/res/layout/activity_scan_result_adapter.xml" value="0.33" />
       </map>
     </option>
