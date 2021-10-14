@@ -17,4 +17,9 @@
     <string name="text_default_write_value">Android says Hi</string>
     <string name="text_hint_write_value">String value for write</string>
     <string name="text_default_logs_value">Logs:</string>
+    <string name="btn_disconnect">Disconnect</string>
+    <string name="title_activity_logs">LogsActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="plot1">Plot 1</string>
 </resources>

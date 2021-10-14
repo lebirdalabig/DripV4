@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.dripv4">
 
-
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -22,6 +21,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DripV4">
+        <activity
+            android:name=".TestActi"
+            android:exported="true" />
+        <activity
+            android:name=".LogsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_logs"
+            android:theme="@style/Theme.DripV4.NoActionBar" />
         <activity
             android:name=".BluetoothActivity"
             android:exported="true" />

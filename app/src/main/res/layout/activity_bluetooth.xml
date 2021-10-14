@@ -8,13 +8,10 @@
 
     <Button
         android:id="@+id/scan_button"
-        android:layout_width="370dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
         android:text="@string/btnSearch"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -25,6 +22,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/activity_scan_result_adapter" />
+
+    <Button
+        android:id="@+id/btn_disconnect"
+        android:layout_width="200dp"
+        android:layout_height="65dp"
+        android:text="@string/btn_disconnect"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

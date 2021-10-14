@@ -15,4 +15,9 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, BluetoothActivity::class.java)
         startActivity(intent)
     }
+
+    fun btnLogin(view: View){
+        val intent = Intent(this, LogsActivity::class.java)
+        startActivity(intent)
+    }
 }
